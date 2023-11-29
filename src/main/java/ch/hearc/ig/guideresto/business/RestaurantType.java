@@ -14,6 +14,7 @@ public class RestaurantType {
     private String label;
     @Column(name = "DESCRIPTION")
     private String description;
+    @OneToMany(mappedBy = "type")
     private Set<Restaurant> restaurants;
 
     public RestaurantType(Integer id, String label, String description) {

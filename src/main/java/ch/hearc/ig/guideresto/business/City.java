@@ -15,6 +15,7 @@ public class City {
     private String zipCode;
     @Column(name = "NOM_VILLE")
     private String cityName;
+    @OneToMany(mappedBy = "city")
     private Set<Restaurant> restaurants;
 
     public City(Integer id, String zipCode, String cityName) {

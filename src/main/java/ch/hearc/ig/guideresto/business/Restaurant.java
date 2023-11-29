@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 
 import java.util.HashSet;
 import java.util.Set;
+
 @Entity
 @Table(name = "RESTAURANTS")
 public class Restaurant {
@@ -16,8 +17,13 @@ public class Restaurant {
     private String description;
     @Column(name = "SITE_WEB")
     private String website;
+    @OneToMany(mappedBy = "restaurant")
     private Set<Evaluation> evaluations;
+
+    @Column(name = "fk_vill")
     private Localisation address;
+
+    @Column(name = "fk_type")
     private RestaurantType type;
 
     public Restaurant(Integer id, String name, String description, String website, String street, City city, RestaurantType type) {

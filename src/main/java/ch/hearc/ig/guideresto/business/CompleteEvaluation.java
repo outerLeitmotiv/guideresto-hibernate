@@ -2,6 +2,7 @@ package ch.hearc.ig.guideresto.business;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 import java.time.LocalDate;
@@ -15,6 +16,7 @@ public class CompleteEvaluation extends Evaluation {
   private String comment;
   @Column(name = "UTILISATEUR")
   private String username;
+  @OneToMany(mappedBy = "evaluation")
   private Set<Grade> grades;
 
   public CompleteEvaluation(Integer id, LocalDate visitDate, Restaurant restaurant, String comment,
