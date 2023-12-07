@@ -5,9 +5,11 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 
 @MappedSuperclass
+@Inheritance(strategy = InheritanceType.JOINED)
+@DiscriminatorColumn(name = "TYPE")
 public abstract class Evaluation {
   @Id
-  @GeneratedValue
+  @Column(name = "NUMERO")
   private Integer id;
 
   @Column(name = "DATE_EVAL")

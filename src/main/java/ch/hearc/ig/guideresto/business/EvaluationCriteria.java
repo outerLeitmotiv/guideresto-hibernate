@@ -6,7 +6,9 @@ import jakarta.persistence.*;
 @Table(name = "CRITERES_EVALUATION")
 public class EvaluationCriteria {
     @Id
-    @GeneratedValue
+    @GeneratedValue (strategy = GenerationType.SEQUENCE, generator = "SEQ_CRITERES_EVALUATION")
+    @SequenceGenerator(name = "SEQ_CRITERES_EVALUATION", sequenceName = "SEQ_CRITERES_EVALUATION", initialValue = 1, allocationSize = 1)
+    @Column(name = "numero")
     private Integer id;
 
     @Column(name = "nom")
@@ -15,7 +17,6 @@ public class EvaluationCriteria {
     @Column(name = "description")
     private String description;
 
-    // Constructors
     public EvaluationCriteria() {}
 
     public EvaluationCriteria(Integer id, String name, String description) {

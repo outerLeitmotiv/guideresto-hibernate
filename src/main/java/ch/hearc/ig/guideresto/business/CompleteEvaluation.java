@@ -7,12 +7,22 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
+@Inheritance(strategy = InheritanceType.JOINED)
 @Table(name = "COMMENTAIRES")
 public class CompleteEvaluation extends Evaluation {
+
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_EVAL")
+  @SequenceGenerator(name = "SEQ_EVAL", sequenceName = "SEQ_EVAL", allocationSize = 1)
+  @Override
+  public Integer getId() {
+    return super.getId();
+  }
+
+  @Lob
   @Column(name = "COMMENTAIRE")
   private String comment;
 
-  @Column(name = "UTILISATEUR")
+  @Column(name = "nom_utilisateur")
   private String username;
 
   @OneToMany(mappedBy = "evaluation", cascade = CascadeType.ALL, orphanRemoval = true)

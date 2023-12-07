@@ -9,12 +9,15 @@ import java.util.Set;
 @Table(name = "RESTAURANTS")
 public class Restaurant {
     @Id
-    @GeneratedValue
+    @GeneratedValue (strategy = GenerationType.SEQUENCE, generator = "SEQ_RESTAURANTS")
+    @SequenceGenerator(name = "SEQ_RESTAURANTS", sequenceName = "SEQ_RESTAURANTS", initialValue = 1, allocationSize = 1)
+    @Column(name = "NUMERO")
     private Integer id;
 
     @Column(name = "NOM")
     private String name;
 
+    @Lob
     @Column(name = "DESCRIPTION")
     private String description;
 
@@ -22,10 +25,12 @@ public class Restaurant {
     private String website;
 
     @OneToMany(mappedBy = "restaurant", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Evaluation> evaluations = new HashSet<>();
+    private Set<BasicEvaluation> basicEvaluations = new HashSet<>();
 
-    @ManyToOne
-    @JoinColumn(name = "fk_vill")
+    @OneToMany(mappedBy = "restaurant", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<CompleteEvaluation> completeEvaluations = new HashSet<>();
+
+    @Embedded
     private Localisation address;
 
     @ManyToOne
@@ -81,6 +86,9 @@ public class Restaurant {
     }
 
     public Set<Evaluation> getEvaluations() {
+        Set<Evaluation> evaluations = new HashSet<>();
+        evaluations.addAll(basicEvaluations);
+        evaluations.addAll(completeEvaluations);
         return evaluations;
     }
 

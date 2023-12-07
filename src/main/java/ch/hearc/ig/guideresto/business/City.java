@@ -9,7 +9,9 @@ import java.util.Set;
 @Table(name = "VILLES")
 public class City {
     @Id
-    @GeneratedValue
+    @Column(name = "numero")
+    @GeneratedValue (strategy = GenerationType.SEQUENCE, generator = "SEQ_VILLES")
+    @SequenceGenerator(name = "SEQ_VILLES", sequenceName = "SEQ_VILLES", initialValue = 1, allocationSize = 1)
     private Integer id;
 
     @Column(name = "code_postal")
@@ -18,8 +20,8 @@ public class City {
     @Column(name = "nom_ville")
     private String cityName;
 
-    @OneToMany(mappedBy = "city", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Restaurant> restaurants = new HashSet<>();
+    @OneToMany(mappedBy = "address.city", fetch = FetchType.LAZY)
+    private Set<Restaurant> restaurants;
 
     public City() {}
 

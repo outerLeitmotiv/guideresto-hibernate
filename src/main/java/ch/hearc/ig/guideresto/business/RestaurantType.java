@@ -5,15 +5,18 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "TYPES_RESTAURANTS")
+@Table(name = "TYPES_GASTRONOMIQUES")
 public class RestaurantType {
     @Id
-    @GeneratedValue
+    @GeneratedValue (strategy = GenerationType.SEQUENCE, generator = "SEQ_TYPES_GASTRONOMIQUES")
+    @SequenceGenerator(name = "SEQ_TYPES_GASTRONOMIQUES", sequenceName = "SEQ_TYPES_GASTRONOMIQUES", initialValue = 1, allocationSize = 1)
+    @Column(name = "NUMERO")
     private Integer id;
 
     @Column(name = "LIBELLE")
     private String label;
 
+    @Lob
     @Column(name = "DESCRIPTION")
     private String description;
 
