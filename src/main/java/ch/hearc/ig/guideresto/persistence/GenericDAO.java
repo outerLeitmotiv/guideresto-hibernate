@@ -16,11 +16,11 @@ public abstract class GenericDAO<E, I extends Serializable> {
         this.sessionFactory = HibernateUtil.getSessionFactory();
     }
 
-    public void save(E entity) {
+    public void saveOrUpdate(E entity) {
         Transaction transaction = null;
         try (Session session = sessionFactory.openSession()) {
             transaction = session.beginTransaction();
-            session.persist(entity);
+            session.saveOrUpdate(entity);
             transaction.commit();
         } catch (Exception e) {
             if (transaction != null) {
