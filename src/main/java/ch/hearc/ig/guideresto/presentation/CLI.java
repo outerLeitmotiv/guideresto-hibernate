@@ -281,13 +281,21 @@ public class CLI {
   }
 
   private String getCompleteEvaluationDescription(CompleteEvaluation eval) {
-    String result = "Evaluation de : " + eval.getUsername() + "\n";
-    result += "Commentaire : " + eval.getComment() + "\n";
+    StringBuilder result = new StringBuilder();
+    result.append("Evaluation de : ").append(eval.getUsername()).append("\n");
+    result.append("Commentaire : ").append(eval.getComment()).append("\n");
 
-    return result + eval.getGrades().stream()
-        .map(g-> g.getCriteria().getName() + " : " + g.getGrade() + "/5")
-        .collect(joining("\n", "\n", "\n"));
+    Set<Grade> grades = this.gradeDAO.findByEvaluation(eval.getId());
+    for (Grade grade : grades) {
+      result.append(grade.getCriteria().getName())
+              .append(" : ")
+              .append(grade.getGrade())
+              .append("/5\n");
+    }
+
+    return result.toString();
   }
+
 
   private void showRestaurantMenu() {
     println("======================================================");

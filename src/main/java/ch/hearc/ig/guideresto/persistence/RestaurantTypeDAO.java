@@ -12,7 +12,7 @@ public class RestaurantTypeDAO extends GenericDAO<RestaurantType, Integer> {
     }
 
     // Method to find a restaurant type by its label
-    public Optional<RestaurantType> findRestaurantTypeByLabel(String label) {
+    public Optional<RestaurantType> findRestaurantTypeByType(String label) {
         try (Session session = sessionFactory.openSession()) {
             Query<RestaurantType> query = session.createQuery(
                     "SELECT rt FROM RestaurantType rt WHERE lower(rt.label) = :label",

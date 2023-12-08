@@ -13,18 +13,6 @@ public class RestaurantDAO extends GenericDAO<Restaurant, Integer> {
         super(Restaurant.class);
     }
 
-    // Method to find a specific restaurant by ID with evaluations
-    public Restaurant findRestaurantByIdWithEvaluations(Integer id) {
-        try (Session session = sessionFactory.openSession()) {
-            Query<Restaurant> query = session.createQuery(
-                    "SELECT r FROM Restaurant r " +
-                            "LEFT JOIN FETCH r.basicEvaluations " +
-                            "LEFT JOIN FETCH r.completeEvaluations " +
-                            "WHERE r.id = :id", Restaurant.class);
-            query.setParameter("id", id);
-            return query.uniqueResult();
-        }
-    }
 
     // Method to find restaurants by name
     public List<Restaurant> findRestaurantByName(String name) {

@@ -24,10 +24,14 @@ public class Restaurant {
     @Column(name = "SITE_WEB")
     private String website;
 
-    @OneToMany(mappedBy = "restaurant", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "restaurant",
+            cascade = CascadeType.ALL, orphanRemoval = true,
+            fetch = FetchType.EAGER)
     private Set<BasicEvaluation> basicEvaluations = new HashSet<>();
 
-    @OneToMany(mappedBy = "restaurant", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "restaurant", cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.EAGER)
     private Set<CompleteEvaluation> completeEvaluations = new HashSet<>();
 
     @Embedded
