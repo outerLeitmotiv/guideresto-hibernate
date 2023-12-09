@@ -7,14 +7,7 @@ import java.time.LocalDate;
 
 @Entity
 @Table(name = "LIKES")
-@Inheritance(strategy = InheritanceType.JOINED)
 public class BasicEvaluation extends Evaluation {
-  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_LIKES")
-  @SequenceGenerator(name = "SEQ_LIKES", sequenceName = "SEQ_LIKES", allocationSize = 1)
-  @Override
-  public Integer getId() {
-    return super.getId();
-  }
 
   @Convert(converter = BooleanConverter.class)
   @Column(name = "APPRECIATION")

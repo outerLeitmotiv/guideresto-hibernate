@@ -27,13 +27,13 @@ public class RestaurantDAO extends GenericDAO<Restaurant, Integer> {
     // Method to find restaurants by city
     public List<Restaurant> findRestaurantsByCityName(String partialCityName) {
         try (Session session = sessionFactory.openSession()) {
-            Query<Restaurant> query = session.createQuery(
-                    "SELECT r FROM Restaurant r JOIN r.city c " +
-                            "WHERE lower(c.cityName) LIKE :partialCityName", Restaurant.class);
+            String queryStr = "SELECT r FROM Restaurant r WHERE lower(r.address.city.cityName) LIKE :partialCityName";
+            Query<Restaurant> query = session.createQuery(queryStr, Restaurant.class);
             query.setParameter("partialCityName", "%" + partialCityName.toLowerCase() + "%");
             return query.list();
         }
     }
+
 
     // Method to find restaurants by type
     public List<Restaurant> findRestaurantByType(RestaurantType type) {

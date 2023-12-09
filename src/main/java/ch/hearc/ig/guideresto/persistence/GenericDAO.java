@@ -18,17 +18,33 @@ public abstract class GenericDAO<E, I extends Serializable> {
 
     public void saveOrUpdate(E entity) {
         Transaction transaction = null;
-        try (Session session = sessionFactory.openSession()) {
+        Session session = null;
+        try {
+            session = sessionFactory.openSession();
             transaction = session.beginTransaction();
             session.saveOrUpdate(entity);
             transaction.commit();
         } catch (Exception e) {
-            if (transaction != null) {
-                transaction.rollback();
+            if (transaction != null && transaction.isActive()) {
+                try {
+                    transaction.rollback();
+                    System.out.println("Transaction rolled back");
+                } catch (Exception ex) {
+                    System.out.println("Error during transaction rollback: " + ex.getMessage());
+                    ex.printStackTrace();
+                }
             }
+            System.out.println("Error in saveOrUpdate: " + e.getMessage());
+            e.printStackTrace();
             throw e;
+        } finally {
+            if (session != null) {
+                session.close();
+                System.out.println("Session closed");
+            }
         }
     }
+
 
     public void update(E entity) {
         Transaction transaction = null;

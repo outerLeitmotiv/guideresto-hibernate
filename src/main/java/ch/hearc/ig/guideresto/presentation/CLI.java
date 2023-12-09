@@ -378,6 +378,8 @@ public class CLI {
       eval.getGrades().add(grade);
     });
 
+    completeEvaluationDAO.saveOrUpdate(eval);
+
     println("Votre évaluation a bien été enregistrée, merci !");
   }
 
