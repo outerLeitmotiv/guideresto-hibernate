@@ -2,6 +2,8 @@ package ch.hearc.ig.guideresto.application;
 
 import ch.hearc.ig.guideresto.persistence.*;
 import ch.hearc.ig.guideresto.presentation.CLI;
+import ch.hearc.ig.guideresto.service.*;
+
 import java.util.Scanner;
 
 public class Main {
@@ -11,22 +13,22 @@ public class Main {
     var printStream = System.out;
 
     // DAO instances
-    var restaurantDAO = new RestaurantDAO();
-    var cityDAO = new CityDAO();
-    var restaurantTypeDAO = new RestaurantTypeDAO();
-    var basicEvaluationDAO = new BasicEvaluationDAO();
-    var completeEvaluationDAO = new CompleteEvaluationDAO();
-    var evaluationCriteriaDAO = new EvaluationCriteriaDAO();
-    var gradeDAO = new GradeDAO();
+    var restaurantService = new RestaurantTypeService();
+    var cityService = new CityService();
+    var restaurantTypeService = new RestaurantTypeService();
+    var basicEvaluationService = new BasicEvaluationService();
+    var completeEvaluationService = new CompleteEvaluationService();
+    var evaluationCriteriaService = new EvaluationCriteriaService();
+    var gradeService = new GradeService();
 
     // CLI instance with DAOs
     var cli = new CLI(scanner, printStream,
-            restaurantDAO, cityDAO,
-            restaurantTypeDAO,
-            basicEvaluationDAO,
-            completeEvaluationDAO,
-            evaluationCriteriaDAO,
-            gradeDAO);
+            restaurantService, cityService,
+            restaurantTypeService,
+            basicEvaluationService,
+            completeEvaluationService,
+            evaluationCriteriaService,
+            gradeService);
 
     cli.start();
   }

@@ -1,10 +1,9 @@
 package ch.hearc.ig.guideresto.persistence;
 
 import ch.hearc.ig.guideresto.business.City;
-import org.hibernate.Session;
-import org.hibernate.query.Query;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
 
-import java.util.List;
 import java.util.Optional;
 
 public class CityDAO extends GenericDAO<City, Integer> {
@@ -15,11 +14,16 @@ public class CityDAO extends GenericDAO<City, Integer> {
 
     // Method to find a city by its zip code
     public Optional<City> findCityByZipCode(String zipCode) {
-        try (Session session = sessionFactory.openSession()) {
-            Query<City> query = session.createQuery(
+        EntityManager em = JpaUtils.getEntityManager();
+        try {
+            TypedQuery<City> query = em.createQuery(
                     "SELECT c FROM City c WHERE c.zipCode = :zipCode", City.class);
             query.setParameter("zipCode", zipCode);
-            return Optional.ofNullable(query.uniqueResult());
+            return Optional.ofNullable(query.getSingleResult());
+        } catch (Exception e) {
+            return Optional.empty();
+        } finally {
+            JpaUtils.closeEntityManager();
         }
     }
 }

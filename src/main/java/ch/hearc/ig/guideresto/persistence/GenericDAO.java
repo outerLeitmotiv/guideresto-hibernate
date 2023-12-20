@@ -1,28 +1,26 @@
 package ch.hearc.ig.guideresto.persistence;
 
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
+import jakarta.persistence.EntityTransaction;
+import jakarta.persistence.EntityManager;
+
 import java.io.Serializable;
 import java.util.List;
 
 public abstract class GenericDAO<E, I extends Serializable> {
 
     private final Class<E> entityClass;
-    protected final SessionFactory sessionFactory;
 
     protected GenericDAO(Class<E> entityClass) {
         this.entityClass = entityClass;
-        this.sessionFactory = HibernateUtil.getSessionFactory();
     }
 
     public void saveOrUpdate(E entity) {
-        Transaction transaction = null;
-        Session session = null;
+        EntityManager em = JpaUtils.getEntityManager();
+        EntityTransaction transaction = null;
         try {
-            session = sessionFactory.openSession();
-            transaction = session.beginTransaction();
-            session.saveOrUpdate(entity);
+            transaction = em.getTransaction();
+            transaction.begin();
+            em.merge(entity);
             transaction.commit();
         } catch (Exception e) {
             if (transaction != null && transaction.isActive()) {
@@ -38,51 +36,44 @@ public abstract class GenericDAO<E, I extends Serializable> {
             e.printStackTrace();
             throw e;
         } finally {
-            if (session != null) {
-                session.close();
-                System.out.println("Session closed");
-            }
-        }
-    }
-
-
-    public void update(E entity) {
-        Transaction transaction = null;
-        try (Session session = sessionFactory.openSession()) {
-            transaction = session.beginTransaction();
-            session.merge(entity);
-            transaction.commit();
-        } catch (Exception e) {
-            if (transaction != null) {
-                transaction.rollback();
-            }
-            throw e;
+            JpaUtils.closeEntityManager();
+            System.out.println("Session closed");
         }
     }
 
     public E findById(I id) {
-        try (Session session = sessionFactory.openSession()) {
-            return session.find(entityClass, id);
+        EntityManager em = JpaUtils.getEntityManager();
+        try {
+            return em.find(entityClass, id);
+        } finally {
+            JpaUtils.closeEntityManager();
         }
     }
 
     public List<E> findAll() {
-        try (Session session = sessionFactory.openSession()) {
-            return session.createQuery("from " + entityClass.getName(), entityClass).list();
+        EntityManager em = JpaUtils.getEntityManager();
+        try {
+            return em.createQuery("from " + entityClass.getName(), entityClass).getResultList();
+        } finally {
+            JpaUtils.closeEntityManager();
         }
     }
 
     public void delete(E entity) {
-        Transaction transaction = null;
-        try (Session session = sessionFactory.openSession()) {
-            transaction = session.beginTransaction();
-            session.remove(entity);
+        EntityManager em = JpaUtils.getEntityManager();
+        EntityTransaction transaction = null;
+        try {
+            transaction = em.getTransaction();
+            transaction.begin();
+            em.remove(em.contains(entity) ? entity : em.merge(entity));
             transaction.commit();
         } catch (Exception e) {
-            if (transaction != null) {
+            if (transaction != null && transaction.isActive()) {
                 transaction.rollback();
             }
             throw e;
+        } finally {
+            JpaUtils.closeEntityManager();
         }
     }
 }

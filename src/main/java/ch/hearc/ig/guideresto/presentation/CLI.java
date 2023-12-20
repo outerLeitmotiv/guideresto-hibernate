@@ -3,7 +3,8 @@ package ch.hearc.ig.guideresto.presentation;
 import static java.util.stream.Collectors.joining;
 
 import ch.hearc.ig.guideresto.business.*;
-import ch.hearc.ig.guideresto.persistence.*;
+import ch.hearc.ig.guideresto.persistence.CityDAO;
+import ch.hearc.ig.guideresto.service.*;
 
 import java.io.PrintStream;
 import java.net.Inet4Address;
@@ -15,31 +16,32 @@ public class CLI {
 
   private final Scanner scanner;
   private final PrintStream printStream;
-  private final RestaurantDAO restaurantDAO;
-  private final RestaurantTypeDAO restaurantTypeDAO;
-  private final BasicEvaluationDAO basicEvaluationDAO;
-  private final CompleteEvaluationDAO completeEvaluationDAO;
-  private final EvaluationCriteriaDAO evaluationCriteriaDAO;
-  private final GradeDAO gradeDAO;
+  private final RestaurantTypeService restaurantService;
+  private final RestaurantTypeService restaurantTypeService;
+  private final BasicEvaluationService basicEvaluationService;
+  private final CompleteEvaluationService completeEvaluationService;
+  private final EvaluationCriteriaService evaluationCriteriaService;
+  private final GradeService gradeService;
+
 
 
   // Injection de dépendances
   public CLI(Scanner scanner, PrintStream printStream,
-             RestaurantDAO restaurantDAO, CityDAO cityDAO,
-             RestaurantTypeDAO restaurantTypeDAO,
-             BasicEvaluationDAO basicEvaluationDAO,
-             CompleteEvaluationDAO completeEvaluationDAO,
-             EvaluationCriteriaDAO evaluationCriteriaDAO,
-             GradeDAO gradeDAO
+             RestaurantTypeService restaurantService, CityService cityService,
+             RestaurantTypeService restaurantTypeService,
+             BasicEvaluationService basicEvaluationService,
+             CompleteEvaluationService completeEvaluationService,
+             EvaluationCriteriaService evaluationCriteriaService,
+             GradeService gradeService
              ) {
     this.scanner = scanner;
     this.printStream = printStream;
-    this.restaurantDAO = restaurantDAO;
-    this.restaurantTypeDAO = restaurantTypeDAO;
-    this.basicEvaluationDAO = basicEvaluationDAO;
-    this.completeEvaluationDAO = completeEvaluationDAO;
-    this.evaluationCriteriaDAO = evaluationCriteriaDAO;
-    this.gradeDAO = gradeDAO;
+    this.restaurantService = restaurantService;
+    this.restaurantTypeService = restaurantTypeService;
+    this.basicEvaluationService = basicEvaluationService;
+    this.completeEvaluationService = completeEvaluationService;
+    this.evaluationCriteriaService = evaluationCriteriaService;
+    this.gradeService = gradeService;
   }
 
   public void start() {
@@ -111,8 +113,8 @@ public class CLI {
   private void showRestaurantsList() {
     println("Liste des restaurants : ");
 
-    RestaurantDAO restaurantDAO = new RestaurantDAO();
-    Set<Restaurant> restaurants = new HashSet<>(restaurantDAO.findAll());
+    RestaurantService restaurantService = new RestaurantService();
+    Set<Restaurant> restaurants = new HashSet<>(restaurantService.findAll());
 
     Optional<Restaurant> maybeRestaurant = pickRestaurant(restaurants);
     // Si l'utilisateur a choisi un restaurant, on l'affiche, sinon on ne fait rien et l'application va réafficher le menu principal
@@ -122,9 +124,9 @@ public class CLI {
   private void searchRestaurantByName() {
     println("Veuillez entrer une partie du nom recherché : ");
     String research = readString();
-    RestaurantDAO restaurantDAO = new RestaurantDAO();
+    RestaurantService restaurantService = new RestaurantService();
 
-    Set<Restaurant> restaurants = new HashSet<>(restaurantDAO.findRestaurantByName(research));
+    Set<Restaurant> restaurants = new HashSet<>(restaurantService.findRestaurantByName(research));
 
     Optional<Restaurant> maybeRestaurant = pickRestaurant(restaurants);
     maybeRestaurant.ifPresent(this::showRestaurant);
@@ -138,8 +140,8 @@ public class CLI {
     println("Veuillez entrer une partie du nom de la ville désirée : ");
     String research = readString();
 
-    RestaurantDAO restaurantDAO = new RestaurantDAO();
-    List <Restaurant> foundRestaurants = restaurantDAO.findRestaurantsByCityName(research);
+    RestaurantService restaurantService = new RestaurantService();
+    List <Restaurant> foundRestaurants = restaurantService.findRestaurantsByCityName(research);
     Set <Restaurant> restaurants = new HashSet<>(foundRestaurants);
 
     Optional<Restaurant> maybeRestaurant = pickRestaurant(restaurants);
@@ -155,8 +157,8 @@ public class CLI {
     if (choice.equalsIgnoreCase("NEW")) {
       return createNewCity();
     } else {
-      CityDAO cityDAO = new CityDAO();
-      return cityDAO.findCityByZipCode(choice)
+      CityService cityService = new CityService();
+      return cityService.findCityByZipCode(choice)
               .orElseGet(() -> {
                 println("Aucune ville trouvée avec ce NPA. Veuillez réessayer.");
                 return pickCity(cities);
@@ -172,8 +174,8 @@ public class CLI {
 
     City newCity = new City(null, zipCode, cityName); // Assuming constructor matches this signature
 
-    CityDAO cityDAO = new CityDAO(); // Instantiating CityDAO here
-    cityDAO.saveOrUpdate(newCity);   // Saving the new city
+    CityService cityService = new CityService(); // Instantiating CityDAO here
+    cityService.saveOrUpdate(newCity);   // Saving the new city
 
     return newCity;
   }
@@ -194,14 +196,14 @@ public class CLI {
   }
 
   private void searchRestaurantByType() {
-    RestaurantTypeDAO restaurantTypeDAO = new RestaurantTypeDAO();
-    Set<RestaurantType> restaurantTypes = new HashSet<>(restaurantTypeDAO.findAll());
+    RestaurantTypeService restaurantTypeService = new RestaurantTypeService();
+    Set<RestaurantType> restaurantTypes = new HashSet<>(restaurantTypeService.findAll());
 
     RestaurantType chosenType = pickRestaurantType(restaurantTypes);
 
     if (chosenType != null) {
-      RestaurantDAO restaurantDAO = new RestaurantDAO();
-      Set<Restaurant> restaurants = new HashSet<>(restaurantDAO.findRestaurantByType(chosenType));
+      RestaurantService restaurantService = new RestaurantService();
+      Set<Restaurant> restaurants = new HashSet<>(restaurantService.findRestaurantByType(chosenType));
 
       Optional<Restaurant> maybeRestaurant = pickRestaurant(restaurants);
       maybeRestaurant.ifPresent(this::showRestaurant);
@@ -220,19 +222,19 @@ public class CLI {
     println("Rue : ");
     String street = readString();
 
-    CityDAO cityDAO = new CityDAO();
-    City city = pickCity(new HashSet<>(cityDAO.findAll()));
+    CityService cityService = new CityService();
+    City city = pickCity(new HashSet<>(cityService.findAll()));
 
-    RestaurantTypeDAO restaurantTypeDAO = new RestaurantTypeDAO();
-    RestaurantType restaurantType = pickRestaurantType(new HashSet<>(restaurantTypeDAO.findAll()));
+    RestaurantTypeService restaurantTypeService = new RestaurantTypeService();
+    RestaurantType restaurantType = pickRestaurantType(new HashSet<>(restaurantTypeService.findAll()));
 
     if (city != null && restaurantType != null) {
       // Assuming Localisation class has a constructor that takes a street and a city
       Localisation address = new Localisation(street, city);
 
-      RestaurantDAO restaurantDAO = new RestaurantDAO();
+      RestaurantService restaurantService = new RestaurantService();
       Restaurant restaurant = new Restaurant(null, name, description, website, address, restaurantType);
-      restaurantDAO.saveOrUpdate(restaurant);
+      restaurantService.saveOrUpdate(restaurant);
 
       showRestaurant(restaurant);
     } else {
@@ -285,7 +287,7 @@ public class CLI {
     result.append("Evaluation de : ").append(eval.getUsername()).append("\n");
     result.append("Commentaire : ").append(eval.getComment()).append("\n");
 
-    Set<Grade> grades = this.gradeDAO.findByEvaluation(eval.getId());
+    Set<Grade> grades = this.gradeService.findByEvaluation(eval.getId());
     for (Grade grade : grades) {
       result.append(grade.getCriteria().getName())
               .append(" : ")
@@ -342,7 +344,7 @@ public class CLI {
 
     BasicEvaluation eval = new BasicEvaluation(null, LocalDate.now(), restaurant, likeRestaurant, getIpAddress());
     restaurant.getEvaluations().add(eval);
-    basicEvaluationDAO.saveOrUpdate(eval);
+    basicEvaluationService.saveOrUpdate(eval);
     println("Votre vote a été pris en compte !");
   }
 
@@ -362,8 +364,8 @@ public class CLI {
     println("Quel commentaire aimeriez-vous publier ?");
     String comment = readString();
 
-    EvaluationCriteriaDAO evaluationCriteriaDAO = new EvaluationCriteriaDAO();
-    Set<EvaluationCriteria> evaluationCriterias = new HashSet<>(evaluationCriteriaDAO.findAll());
+    EvaluationCriteriaService evaluationCriteriaService = new EvaluationCriteriaService();
+    Set<EvaluationCriteria> evaluationCriterias = new HashSet<>(evaluationCriteriaService.findAll());
 
     CompleteEvaluation eval = new CompleteEvaluation(null, LocalDate.now(), restaurant, comment,
         username);
@@ -378,7 +380,7 @@ public class CLI {
       eval.getGrades().add(grade);
     });
 
-    completeEvaluationDAO.saveOrUpdate(eval);
+    completeEvaluationService.saveOrUpdate(eval);
 
     println("Votre évaluation a bien été enregistrée, merci !");
   }
@@ -394,8 +396,8 @@ public class CLI {
     restaurant.setWebsite(readString());
 
     // Fetch restaurant types and allow the user to pick a new type
-    RestaurantTypeDAO restaurantTypeDAO = new RestaurantTypeDAO();
-    Set<RestaurantType> restaurantTypes = new HashSet<>(restaurantTypeDAO.findAll());
+    RestaurantTypeService restaurantTypeService = new RestaurantTypeService();
+    Set<RestaurantType> restaurantTypes = new HashSet<>(restaurantTypeService.findAll());
     RestaurantType newType = pickRestaurantType(restaurantTypes);
 
     if (newType != null && !newType.equals(restaurant.getType())) {
@@ -403,8 +405,8 @@ public class CLI {
     }
 
     // Save changes
-    RestaurantDAO restaurantDAO = new RestaurantDAO();
-    restaurantDAO.saveOrUpdate(restaurant);
+    RestaurantService restaurantService = new RestaurantService();
+    restaurantService.saveOrUpdate(restaurant);
 
     println("Merci, le restaurant a bien été modifié !");
   }
@@ -425,8 +427,8 @@ public class CLI {
     }
 
     // Save changes
-    RestaurantDAO restaurantDAO = new RestaurantDAO();
-    restaurantDAO.saveOrUpdate(restaurant);
+    RestaurantService restaurantService = new RestaurantService();
+    restaurantService.saveOrUpdate(restaurant);
 
     println("L'adresse a bien été modifiée ! Merci !");
   }
@@ -436,8 +438,8 @@ public class CLI {
     println("Êtes-vous sûr de vouloir supprimer ce restaurant ? (O/n)");
     String choice = readString();
     if ("o".equalsIgnoreCase(choice)) {
-      RestaurantDAO restaurantDAO = new RestaurantDAO();
-      restaurantDAO.delete(restaurant);
+      RestaurantService restaurantService = new RestaurantService();
+      restaurantService.delete(restaurant);
       println("Le restaurant a bien été supprimé !");
     }
   }

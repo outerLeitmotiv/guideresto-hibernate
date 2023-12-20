@@ -6,7 +6,6 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import java.time.LocalDate;
 
 @MappedSuperclass
-@Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn(name = "TYPE")
 public abstract class Evaluation {
   @Id
